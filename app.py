@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template, Response
 import cv2
+import psutil
 import numpy as np
 import pickle
 import os
@@ -189,6 +190,20 @@ def allowed_file(filename):
     )
 
 
+@app.route("/ram_usage")
+def get_ram_usage():
+    # Get the current process
+    process = psutil.Process()
+
+    # Get the memory usage in bytes
+    memory_info = process.memory_info()
+
+    # Convert bytes to MB
+    memory_usage_mb = memory_info.rss / (1024 * 1024)
+
+    return f"Current RAM usage: {memory_usage_mb:.2f} MB"
+
+
 # def generate_frames():
 #     cap = cv2.VideoCapture(0)
 #     while True:
@@ -311,4 +326,4 @@ def upload_file():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
