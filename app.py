@@ -4,6 +4,7 @@ import psutil
 import numpy as np
 import pickle
 import os
+from flask_cors import CORS
 import warnings
 from werkzeug.utils import secure_filename
 import mediapipe as mp
@@ -22,6 +23,12 @@ from flask import (
 # Suppress specific deprecation warnings from protobuf
 warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf")
 app = Flask(__name__, template_folder="templates")
+CORS(
+    app,
+    origins=["http://localhost:5173"],
+    methods=["POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
+)
 app.config["UPLOAD_FOLDER"] = "uploads/"
 app.config["ALLOWED_EXTENSIONS"] = {"jpg", "jpeg", "png"}
 
@@ -190,18 +197,18 @@ def allowed_file(filename):
     )
 
 
-@app.route("/ram_usage")
-def get_ram_usage():
-    # Get the current process
-    process = psutil.Process()
+# @app.route("/ram_usage")
+# def get_ram_usage():
+#     # Get the current process
+#     process = psutil.Process()
 
-    # Get the memory usage in bytes
-    memory_info = process.memory_info()
+#     # Get the memory usage in bytes
+#     memory_info = process.memory_info()
 
-    # Convert bytes to MB
-    memory_usage_mb = memory_info.rss / (1024 * 1024)
+#     # Convert bytes to MB
+#     memory_usage_mb = memory_info.rss / (1024 * 1024)
 
-    return f"Current RAM usage: {memory_usage_mb:.2f} MB"
+#     return f"Current RAM usage: {memory_usage_mb:.2f} MB"
 
 
 # def generate_frames():
@@ -244,10 +251,14 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/upload", methods=["POST"])
+@app.route("/upload", methods=["POST", "OPTIONS"])
 def upload_file():
-    response = {"faceShape": None, "fileUrl": None, "error": None}
+    response = {"faceShape": None, "error": None}
 
+    if request.method == "OPTIONS":
+        return "", 200  # Respond to preflight
+
+    # request
     if "file" not in request.files:
         response["error"] = "No file part"
         return response, 400
