@@ -25,7 +25,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf"
 app = Flask(__name__, template_folder="templates")
 CORS(
     app,
-    origins=["http://localhost:5173"],
+    origins=["https://trimly.edengt.in"],
     methods=["POST", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
 )
